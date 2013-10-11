@@ -46,6 +46,13 @@ describe "User pages" do
           end.to change(User, :count).by(-1)
         end
         it { should_not have_link('delete', href: user_path(admin)) }
+
+        it "should not allow an admin user to delete himself" do
+          expect { delete user_path(admin), {},
+                          'HTTP_COOKIE' => "remember_token=#{admin.remember_token},
+                          #{Capybara.current_session.driver.response.headers["Set-Cookie"]}"
+          }.to_not change(User, :count)
+        end
       end
     end
   end
@@ -82,7 +89,7 @@ describe "User pages" do
         fill_in "Name",         with: "Example User"
         fill_in "Email",        with: "user@example.com"
         fill_in "Password",     with: "foobar"
-        fill_in "Confirmation", with: "foobar"
+        fill_in "Confirm Password", with: "foobar"
       end
 
       it "should create a user" do
@@ -105,7 +112,7 @@ describe "User pages" do
         fill_in "Name",         with: ""
         fill_in "Email",        with: ""
         fill_in "Password",     with: ""
-        fill_in "Confirmation", with: ""
+        fill_in "Confirm Password", with: ""
       end
 
       describe "after submission" do
